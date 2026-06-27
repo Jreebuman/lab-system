@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LabOS — Staff Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 h-screen flex overflow-hidden">
+
+    <div id="toast-container" class="fixed top-5 right-5 z-[100] flex flex-col gap-2 pointer-events-none"></div>
+
+    <div id="login-screen" class="absolute inset-0 z-50 flex items-center justify-center bg-slate-900">
+        <div class="w-full max-w-md px-6">
+            <div class="text-center mb-8">
+                <h1 id="login-lab-name" class="text-4xl font-black text-white tracking-tight mb-1">LabOS</h1>
+                <p class="text-slate-400 text-sm font-medium">Staff Workspace Portal — Sign In</p>
+            </div>
+
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-8 shadow-2xl">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Employee Email</label>
+                        <input type="email" id="login-email" class="w-full bg-slate-700 border border-slate-600 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 text-sm" placeholder="employee@company.com">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Password</label>
+                        <input type="password" id="login-pass" class="w-full bg-slate-700 border border-slate-600 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 text-sm" placeholder="••••••••" onkeydown="if(event.key==='Enter') attemptLogin()">
+                    </div>
+                    <div id="login-error" class="hidden text-red-400 text-sm font-bold bg-red-900/20 border border-red-800/30 rounded-lg px-4 py-2.5"></div>
+                    <button onclick="attemptLogin()" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl transition-all shadow-lg mt-2 text-base">
+                        Sign In to Workspace
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-layout" class="hidden w-full h-full flex">
+        <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col shadow-2xl z-20 shrink-0">
+            <div class="h-16 flex items-center px-5 border-b border-slate-800 gap-3">
+                <div class="flex-1 min-w-0">
+                    <h2 class="text-lg font-black text-white tracking-tight truncate" id="sidebar-lab-name">LabOS</h2>
+                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest truncate" id="sidebar-user-name">Staff Portal</p>
+                </div>
+                <span id="role-badge" class="shrink-0 px-2 py-0.5 text-[9px] font-black rounded uppercase tracking-wider">ROLE</span>
+            </div>
+
+            <nav class="flex-1 py-5 px-3 space-y-1">
+                <p class="px-3 text-[9px] font-black uppercase tracking-widest text-slate-600 mb-3">Navigation</p>
+                <button onclick="navTo('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors text-sm">🏠 Dashboard</button>
+                <button onclick="navTo('collected')" id="nav-collected" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 font-medium transition-colors text-sm">🩸 Collected Samples</button>
+                <button onclick="navTo('history')" id="nav-history" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 font-medium transition-colors text-sm">🕒 History & Archive</button>
+            </nav>
+
+            <div class="p-4 border-t border-slate-800 space-y-2">
+                <div class="px-3 py-2 rounded-lg bg-slate-800/50">
+                    <p class="text-[9px] text-slate-500 uppercase tracking-wider font-bold">Logged in as</p>
+                    <p class="text-xs text-slate-300 font-bold truncate mt-0.5" id="sidebar-user-email">—</p>
+                </div>
+                <button onclick="logout()" class="w-full py-2 text-sm text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg font-bold flex items-center justify-center gap-2">🚪 Sign Out</button>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col h-screen overflow-y-auto bg-slate-50">
+            <div id="main-content" class="p-8 max-w-6xl mx-auto w-full pb-24"></div>
+        </main>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://rgoghcdckealecqxrpwl.supabase.co'; 
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdWJhc2FzZSIsInJlZiI6InJnb2doY2Rja2VhbGVjcXhycHdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1OTAzMTUsImV4cCI6MjA5ODE2NjMxNX0.e6CXQZXfEeRfWtZF9GfXSDITrsQb3GtPT-uUnxeE1iU';
+        
+        let dbClient = null;
+        try {
+            if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+                dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+        } catch(e) {}
+
+        const STORAGE_KEY = 'labos_tenant_config';
+        let config = { clinicName: 'LabOS Space', themeColor: '#2563eb', currency: 'USD', locations: [], services: [] };
+        let currentUser = null; let currentNavTab = 'dashboard';
+
+        function loadConfig() {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY); if (stored) config = JSON.parse(stored);
+            } catch(e) {}
+            document.getElementById('login-lab-name').textContent = config.clinicName || 'LabOS';
+        }
+
+        async function attemptLogin() {
+            loadConfig();
+            const email = document.getElementById('login-email').value.trim().toLowerCase();
+            const password = document.getElementById('login-pass').value;
+            const errEl = document.getElementById('login-error');
+
+            if (!email || !password) {
+                errEl.textContent = "⚠ Fill out all fields."; errEl.classList.remove('hidden'); return;
+            }
+
+            if(dbClient) {
+                const { data, error } = await dbClient.auth.signInWithPassword({ email, password });
+                if(error) {
+                    errEl.textContent = `⚠ ${error.message}`; errEl.classList.remove('hidden');
+                } else {
+                    errEl.classList.add('hidden');
+                    currentUser = {
+                        name: data.user.user_metadata.full_name || email.split('@')[0],
+                        email: data.user.email,
+                        role: data.user.user_metadata.role || 'cs'
+                    };
+                    enterApp();
+                }
+            }
+        }
+
+        function enterApp() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('app-layout').classList.remove('hidden');
+            document.getElementById('sidebar-lab-name').textContent = config.clinicName;
+            document.getElementById('sidebar-user-name').textContent = currentUser.name;
+            document.getElementById('sidebar-user-email').textContent = currentUser.email;
+
+            const roleBadge = document.getElementById('role-badge');
+            roleBadge.textContent = currentUser.role.toUpperCase();
+            roleBadge.className = `shrink-0 px-2 py-0.5 text-[9px] font-black rounded uppercase tracking-wider ${currentUser.role === 'nurse' ? 'bg-emerald-800 text-emerald-200' : 'bg-blue-800 text-blue-200'}`;
+            navTo('dashboard');
+        }
+
+        function logout() {
+            if(dbClient) dbClient.auth.signOut();
+            currentUser = null; document.getElementById('app-layout').classList.add('hidden'); document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('login-email').value = ''; document.getElementById('login-pass').value = '';
+        }
+
+        function navTo(tabName) {
+            currentNavTab = tabName;
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = "nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 text-slate-300 font-medium transition-colors text-sm";
+                btn.style.backgroundColor = "";
+            });
+            const activeBtn = document.getElementById(`nav-${tabName}`);
+            if(activeBtn) {
+                activeBtn.style.backgroundColor = config.themeColor || '#2563eb';
+                activeBtn.className = "nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-white font-bold shadow-md text-sm";
+            }
+            renderMainContent();
+        }
+
+        function renderMainContent() {
+            const container = document.getElementById('main-content');
+            if (currentNavTab === 'dashboard') {
+                container.innerHTML = `
+                    <div class="mb-6 border-b pb-4">
+                        <h2 class="text-2xl font-black text-slate-800">Operational Workspace Dashboard</h2>
+                        <p class="text-xs text-slate-400 uppercase tracking-wider font-bold mt-1">Authorized Agency Branch: ${config.locations[0] || 'Main Headquarters'}</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-white border rounded-xl p-5 shadow-sm">
+                            <p class="text-slate-400 font-bold text-xs uppercase tracking-wide">System Status</p>
+                            <p class="text-2xl font-black text-emerald-600 mt-1">● Online Active</p>
+                        </div>
+                        <div class="bg-white border rounded-xl p-5 shadow-sm">
+                            <p class="text-slate-400 font-bold text-xs uppercase tracking-wide">Assigned Role</p>
+                            <p class="text-2xl font-black text-slate-700 mt-1 uppercase">${currentUser.role}</p>
+                        </div>
+                        <div class="bg-white border rounded-xl p-5 shadow-sm">
+                            <p class="text-slate-400 font-bold text-xs uppercase tracking-wide">Base Currency</p>
+                            <p class="text-2xl font-black text-blue-600 mt-1">${config.currency || 'USD'}</p>
+                        </div>
+                    </div>
+                    <div class="bg-white border border-slate-200 rounded-2xl p-6">
+                        <h3 class="font-bold text-base text-slate-800 mb-2">Available Clinical Service Profiles</h3>
+                        <div class="divide-y font-medium text-xs text-slate-600">
+                            ${(config.services || []).map(s => `
+                                <div class="py-3 flex justify-between">
+                                    <span>🧪 ${s.name}</span>
+                                    <span class="font-black text-slate-800">${s.price} ${config.currency}</span>
+                                </div>
+                            `).join('') || '<p class="text-slate-400 italic py-2">No active tests populated in the master catalog.</p>'}
+                        </div>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `<div class="p-8 border border-dashed rounded-2xl text-center text-slate-400 italic text-sm bg-white">No active workflows initialized inside this localized session node.</div>`;
+            }
+        }
+        loadConfig();
+    </script>
+</body>
+</html>
