@@ -134,7 +134,7 @@
                 
         let appState = { clinicName: '', themeColor: '#2563eb', currency: '', locations: [], services: [], staffRecords: [], patientRecords: [] };
 
-        // 🚀 BULLETPROOF WEB API FETCH ROUTING FOR LOGIN
+// 🚀 UNIVERSAL WEB API FETCH ROUTING FOR LOGIN
         async function attemptAdminLogin() {
             const email = document.getElementById('admin-email').value.trim();
             const password = document.getElementById('admin-pass').value;
@@ -143,11 +143,12 @@
             if(!email || !password) { errEl.textContent = "⚠ Fill out fields."; errEl.classList.remove('hidden'); return; }
 
             try {
-                // Direct call to Supabase's clean token authentication path
-                const response = await fetch(`${BASE_URL}/auth/v1/token?grant_type=password`, {
+                // We add the apikey explicitly as a URL parameter AND a header to bypass all gateway blocks!
+                const response = await fetch(`${BASE_URL}/auth/v1/token?grant_type=password&apikey=${ANON_KEY}`, {
                     method: 'POST',
                     headers: {
                         'apikey': ANON_KEY,
+                        'ApiKey': ANON_KEY,
                         'Authorization': `Bearer ${ANON_KEY}`,
                         'Content-Type': 'application/json'
                     },
