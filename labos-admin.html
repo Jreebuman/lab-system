@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard — Lab Management System</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-slate-50 font-sans text-slate-800 h-screen flex flex-col">
 
@@ -21,7 +20,7 @@
                 <div class="space-y-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Admin Email</label>
-                        <input type="email" id="admin-email" class="w-full bg-slate-700 border border-slate-600 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 text-sm" placeholder="admin@buyercompany.com">
+                        <input type="email" id="admin-email" class="w-full bg-slate-700 border border-slate-600 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 text-sm" placeholder="admin@companyone.com">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Password</label>
@@ -62,19 +61,13 @@
             <main class="flex-1 overflow-y-auto p-8">
                 <div id="content-analytics" class="space-y-6">
                     <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-100">
-                            <div>
-                                <h3 class="text-base font-black text-slate-800">Global Records Matrix</h3>
-                                <p class="text-xs text-slate-400">Filter datasets dynamically.</p>
-                            </div>
-                        </div>
+                        <h3 class="text-base font-black text-slate-800 mb-2">Global Records Matrix</h3>
                         <div class="overflow-x-auto border border-slate-100 rounded-xl">
                             <table class="w-full text-left text-xs border-collapse">
                                 <thead class="bg-slate-100 text-slate-600 font-bold uppercase tracking-wider border-b border-slate-200">
                                     <tr>
                                         <th class="p-3">Patient info</th>
                                         <th class="p-3">Test Requested</th>
-                                        <th class="p-3">Area</th>
                                     </tr>
                                 </thead>
                                 <tbody id="records-table-body" class="divide-y divide-slate-100 font-medium"></tbody>
@@ -85,13 +78,11 @@
 
                 <div id="content-branding" class="hidden space-y-6">
                     <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
-                        <div>
-                            <h3 class="text-base font-black text-slate-800">White-Label Client Brand Setup</h3>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                        <h3 class="text-base font-black text-slate-800">White-Label Client Brand Setup</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">Corporate Lab / Clinic Name</label>
-                                <input type="text" id="setup-name" placeholder="e.g., Apex Diagnostics" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm outline-none">
+                                <input type="text" id="setup-name" placeholder="e.g., Apex Diagnostics" class="w-full border rounded-lg p-2.5 text-sm outline-none">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">Theme Color & Currency</label>
@@ -118,9 +109,7 @@
 
                 <div id="content-staff" class="hidden space-y-6">
                     <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                        <div class="mb-4">
-                            <h3 class="text-base font-black text-slate-800">Secure Employee Invites</h3>
-                        </div>
+                        <h3 class="text-base font-black text-slate-800 mb-4">Secure Employee Invites</h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
                             <input type="text" id="staff-name" placeholder="Full Name" class="border rounded-lg p-2 text-xs outline-none">
                             <input type="email" id="staff-email" placeholder="work@email.com" class="border rounded-lg p-2 text-xs outline-none">
@@ -140,68 +129,93 @@
     </div>
 
     <script>
-// ⚡ Ensure there is absolutely NO extra trailing slash at the end of this URL string!
-        const SUPABASE_URL = 'https://rgoghcdckealecqxrpwl.supabase.co'; 
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdWJhc2FzZSIsInJlZiI6InJnb2doY2Rja2VhbGVjcXhycHdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1OTAzMTUsImV4cCI6MjA5ODE2NjMxNX0.e6CXQZXfEeRfWtZF9GfXSDITrsQb3GtPT-uUnxeE1iU';
+        const BASE_URL = 'https://rgoghcdckealecqxrpwl.supabase.co'; 
+        const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdWJhc2FzZSIsInJlZiI6InJnb2doY2Rja2VhbGVjcXhycHdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1OTAzMTUsImV4cCI6MjA5ODE2NjMxNX0.e6CXQZXfEeRfWtZF9GfXSDITrsQb3GtPT-uUnxeE1iU';
                 
-        // Initialize client cleanly without legacy variable overrides
-        const dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
         let appState = { clinicName: '', themeColor: '#2563eb', currency: '', locations: [], services: [], staffRecords: [], patientRecords: [] };
 
+        // 🚀 BULLETPROOF WEB API FETCH ROUTING FOR LOGIN
         async function attemptAdminLogin() {
             const email = document.getElementById('admin-email').value.trim();
             const password = document.getElementById('admin-pass').value;
             const errEl = document.getElementById('admin-login-error');
 
-            const { data, error } = await dbClient.auth.signInWithPassword({ email, password });
-            if(error) {
-                errEl.textContent = `⚠ ${error.message}`; errEl.classList.remove('hidden');
-            } else {
-                if(data.user?.user_metadata?.role === 'admin') {
+            if(!email || !password) { errEl.textContent = "⚠ Fill out fields."; errEl.classList.remove('hidden'); return; }
+
+            try {
+                // Direct call to Supabase's clean token authentication path
+                const response = await fetch(`${BASE_URL}/auth/v1/token?grant_type=password`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': ANON_KEY,
+                        'Authorization': `Bearer ${ANON_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    errEl.textContent = `⚠ ${data.error_description || data.message || 'Authentication failed'}`;
+                    errEl.classList.remove('hidden');
+                    return;
+                }
+
+                if (data.user?.user_metadata?.role === 'admin') {
                     errEl.classList.add('hidden');
                     document.getElementById('admin-login-screen').classList.add('hidden');
                     document.getElementById('app-layout').classList.remove('hidden');
                     loadInitialSetupState();
                 } else {
-                    errEl.textContent = "⚠ Denied: Missing Admin Clearance Role Tag."; errEl.classList.remove('hidden');
-                    dbClient.auth.signOut();
+                    errEl.textContent = "⚠ Access Denied: Profile is missing the Admin role flag.";
+                    errEl.classList.remove('hidden');
                 }
+            } catch (err) {
+                errEl.textContent = "⚠ Connection timeout or network blockade.";
+                errEl.classList.remove('hidden');
             }
         }
 
-        function logoutAdmin() {
-            dbClient.auth.signOut();
-            document.getElementById('app-layout').classList.add('hidden');
-            document.getElementById('admin-login-screen').classList.remove('hidden');
-        }
-
+        // 🚀 BULLETPROOF WEB API FETCH ROUTING FOR STAFF INVITES
         async function triggerStaffInvitation() {
             const name = document.getElementById('staff-name').value.trim();
             const email = document.getElementById('staff-email').value.trim();
             const role = document.getElementById('staff-role').value;
 
             if(!name || !email) { showToast('Complete inputs'); return; }
-
-            // ⚡ EXPLICIT FIXED PATH ROUTING: Automatically directs the confirmation link to labos-portal.html inside your folder!
             const portalURL = window.location.href.substring(0, window.location.href.lastIndexOf('/')) + '/labos-portal.html';
 
-            const { data, error } = await dbClient.auth.signUp({
-                email: email,
-                password: 'TemporaryPasscode123!',
-                options: {
-                    emailRedirectTo: portalURL,
-                    data: { full_name: name, role: role, clinic_name: appState.clinicName || 'LabOS Space' }
-                }
-            });
+            try {
+                const response = await fetch(`${BASE_URL}/auth/v1/signup`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': ANON_KEY,
+                        'Content-Type': 'application/json',
+                        'X-Client-Info': 'supabase-js/2.0.0'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: 'TemporaryPasscode123!',
+                        options: {
+                            emailRedirectTo: portalURL,
+                            data: { full_name: name, role: role, clinic_name: appState.clinicName || 'LabOS Space' }
+                        }
+                    })
+                });
 
-            if(error) {
-                showToast(`Error: ${error.message}`);
-            } else {
-                showToast(`Invite dispatched straight to Mailtrap Sandbox!`);
-                appState.staffRecords.push({ name, email, role, status: 'Invite Dispatched' });
-                saveClinicSetup();
-                renderStaffList();
+                const data = await response.json();
+
+                if (!response.ok) {
+                    showToast(`Error: ${data.message || 'Invite creation failed'}`);
+                } else {
+                    showToast(`Invite processed straight to Mailtrap Sandbox!`);
+                    appState.staffRecords.push({ name, email, role, status: 'Invite Dispatched' });
+                    saveClinicSetup();
+                    renderStaffList();
+                }
+            } catch (err) {
+                showToast("Network request crashed.");
             }
         }
 
@@ -219,13 +233,14 @@
             setTimeout(() => toast.remove(), 3500);
         }
 
-        function renderRecordsMatrix(dataset) {
-            document.getElementById('records-table-body').innerHTML = `<tr><td colspan="3" class="p-8 text-center text-slate-400 italic">No real-time data incoming.</td></tr>`;
+        function logoutAdmin() {
+            document.getElementById('app-layout').classList.add('hidden');
+            document.getElementById('admin-login-screen').classList.remove('hidden');
         }
-        function addLocationNode() {}
-        function renderBrandingLists() {}
+        function renderRecordsMatrix() {
+            document.getElementById('records-table-body').innerHTML = `<tr><td colspan="2" class="p-8 text-center text-slate-400 italic">No incoming live streams.</td></tr>`;
+        }
         function addCatalogNode() {}
-        function renderCatalogList() {}
         function renderStaffList() {
             document.getElementById('staff-list-bag').innerHTML = appState.staffRecords.map(s => `<div class="p-3 bg-slate-50 border rounded-xl flex justify-between items-center text-xs"><div><p class="font-bold text-slate-800">${s.name} <span class="text-slate-400 font-normal">(${s.email})</span></p><p class="text-blue-600 uppercase font-black tracking-wider mt-0.5">${s.role}</p></div><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">${s.status}</span></div>`).join('');
         }
@@ -242,7 +257,7 @@
             document.getElementById('setup-name').value = appState.clinicName || '';
             document.getElementById('setup-color').value = appState.themeColor || '#2563eb';
             document.getElementById('setup-currency').value = appState.currency || '';
-            renderRecordsMatrix(appState.patientRecords); renderStaffList();
+            renderRecordsMatrix(); renderStaffList();
         }
     </script>
 </body>
