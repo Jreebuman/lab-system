@@ -140,11 +140,13 @@
     </div>
 
     <script>
-        const SUPABASE_URL = 'https://rgoghcdckealecqxrpwl.supabase.co/rest/v1/'; 
+// ⚡ Ensure there is absolutely NO extra trailing slash at the end of this URL string!
+        const SUPABASE_URL = 'https://rgoghcdckealecqxrpwl.supabase.co'; 
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdWJhc2FzZSIsInJlZiI6InJnb2doY2Rja2VhbGVjcXhycHdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1OTAzMTUsImV4cCI6MjA5ODE2NjMxNX0.e6CXQZXfEeRfWtZF9GfXSDITrsQb3GtPT-uUnxeE1iU';
                 
+        // Initialize client cleanly without legacy variable overrides
         const dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+        
         let appState = { clinicName: '', themeColor: '#2563eb', currency: '', locations: [], services: [], staffRecords: [], patientRecords: [] };
 
         async function attemptAdminLogin() {
