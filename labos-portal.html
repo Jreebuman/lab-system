@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LabOS — Staff Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-slate-50 font-sans text-slate-800 h-screen flex overflow-hidden">
 
@@ -49,7 +48,7 @@
 
             <nav class="flex-1 py-5 px-3 space-y-1">
                 <p class="px-3 text-[9px] font-black uppercase tracking-widest text-slate-600 mb-3">Navigation</p>
-                <button onclick="navTo('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors text-sm">🏠 Dashboard</button>
+                <button onclick="navTo('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm">🏠 Dashboard</button>
             </nav>
 
             <div class="p-4 border-t border-slate-800 space-y-2">
@@ -67,12 +66,8 @@
     </div>
 
     <script>
-// ⚡ Ensure there is absolutely NO extra trailing slash at the end of this URL string!
-        const SUPABASE_URL = 'https://rgoghcdckealecqxrpwl.supabase.co'; 
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdWJhc2FzZSIsInJlZiI6InJnb2doY2Rja2VhbGVjcXhycHdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1OTAzMTUsImV4cCI6MjA5ODE2NjMxNX0.e6CXQZXfEeRfWtZF9GfXSDITrsQb3GtPT-uUnxeE1iU';
-                
-        // Initialize client cleanly without legacy variable overrides
-        const dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const BASE_URL = 'https://rgoghcdckealecqxrpwl.supabase.co'; 
+        const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdWBhYmFzZSIsInJlZiI6InJnb2doY2Rja2VhbGVjcXhycHdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1OTAzMTUsImV4cCI6MjA5ODE2NjMxNX0.e6CXQZXfEeRfWtZF9GfXSDITrsQb3GtPT-uUnxeE1iU';
         
         const STORAGE_KEY = 'labos_tenant_config';
         let config = { clinicName: 'LabOS Space', themeColor: '#2563eb', currency: 'USD', locations: [], services: [] };
@@ -91,21 +86,37 @@
             const password = document.getElementById('login-pass').value;
             const errEl = document.getElementById('login-error');
 
-            if (!email || !password) {
-                errEl.textContent = "⚠ Fill out all fields."; errEl.classList.remove('hidden'); return;
-            }
+            if (!email || !password) { errEl.textContent = "⚠ Fill out all fields."; errEl.classList.remove('hidden'); return; }
 
-            const { data, error } = await dbClient.auth.signInWithPassword({ email, password });
-            if(error) {
-                errEl.textContent = `⚠ ${error.message}`; errEl.classList.remove('hidden');
-            } else {
+            try {
+                const response = await fetch(`${BASE_URL}/auth/v1/token?grant_type=password&apikey=${ANON_KEY}`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': ANON_KEY,
+                        'Authorization': `Bearer ${ANON_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    errEl.textContent = `⚠ ${data.error_description || data.message || 'Authentication failed'}`;
+                    errEl.classList.remove('hidden');
+                    return;
+                }
+
                 errEl.classList.add('hidden');
                 currentUser = {
-                    name: data.user.user_metadata.full_name || email.split('@')[0],
-                    email: data.user.email,
-                    role: data.user.user_metadata.role || 'cs'
+                    name: data.user?.user_metadata?.full_name || email.split('@')[0],
+                    email: data.user?.email,
+                    role: data.user?.user_metadata?.role || 'cs'
                 };
                 enterApp();
+            } catch (err) {
+                errEl.textContent = "⚠ Network failure connecting to server.";
+                errEl.classList.remove('hidden');
             }
         }
 
@@ -123,7 +134,6 @@
         }
 
         function logout() {
-            dbClient.auth.signOut();
             currentUser = null; document.getElementById('app-layout').classList.add('hidden'); document.getElementById('login-screen').classList.remove('hidden');
             document.getElementById('login-email').value = ''; document.getElementById('login-pass').value = '';
         }
