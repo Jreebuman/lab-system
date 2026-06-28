@@ -14,14 +14,14 @@
         <div class="w-full max-w-md px-6">
             <div class="text-center mb-8">
                 <h1 id="login-lab-name" class="text-4xl font-black text-white tracking-tight mb-1">LabOS</h1>
-                <p class="text-slate-400 text-sm font-medium">Staff Workspace Portal — Sign In</p>
+                <p class="text-slate-400 text-sm font-medium">Staff Portal — Sign In</p>
             </div>
 
             <div class="bg-slate-800 border border-slate-700 rounded-2xl p-8 shadow-2xl">
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Employee Email</label>
-                        <input type="email" id="login-email" class="w-full bg-slate-700 border border-slate-600 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 text-sm" placeholder="employee@company.com">
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Email / Identifier</label>
+                        <input type="email" id="login-email" class="w-full bg-slate-700 border border-slate-600 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 text-sm" placeholder="employee@clinic.com">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Password</label>
@@ -29,7 +29,7 @@
                     </div>
                     <div id="login-error" class="hidden text-red-400 text-sm font-bold bg-red-900/20 border border-red-800/30 rounded-lg px-4 py-2.5"></div>
                     <button onclick="attemptLogin()" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl transition-all shadow-lg mt-2 text-base">
-                        Sign In to Workspace
+                        Sign In
                     </button>
                 </div>
             </div>
@@ -48,7 +48,7 @@
 
             <nav class="flex-1 py-5 px-3 space-y-1">
                 <p class="px-3 text-[9px] font-black uppercase tracking-widest text-slate-600 mb-3">Navigation</p>
-                <button onclick="navTo('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm">🏠 Dashboard</button>
+                <button onclick="navTo('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors text-sm">🏠 Dashboard</button>
             </nav>
 
             <div class="p-4 border-t border-slate-800 space-y-2">
@@ -66,56 +66,46 @@
     </div>
 
     <script>
-        const BASE_URL = 'https://rgoghcdckealecqxrpwl.supabase.co'; 
-        const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdWBhYmFzZSIsInJlZiI6InJnb2doY2Rja2VhbGVjcXhycHdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1OTAzMTUsImV4cCI6MjA5ODE2NjMxNX0.e6CXQZXfEeRfWtZF9GfXSDITrsQb3GtPT-uUnxeE1iU';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdWJhc2FzZSIsInJlZiI6InJnb2doY2Rja2VhbGVjcXhycHdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5MDMxNSwiZXhwIjoyMDk4MTY2MzE1fQ.e6CXQZXfEeRfWtZF9GfXSDITrsQb3GtPT-uUnxeE1iU';
         
         const STORAGE_KEY = 'labos_tenant_config';
-        let config = { clinicName: 'LabOS Space', themeColor: '#2563eb', currency: 'USD', locations: [], services: [] };
+        let config = {
+            clinicName: 'LabOS Space', themeColor: '#2563eb', currency: 'USD', locations: [], services: [], staffRecords: []
+        };
         let currentUser = null; let currentNavTab = 'dashboard';
 
         function loadConfig() {
             try {
-                const stored = localStorage.getItem(STORAGE_KEY); if (stored) config = JSON.parse(stored);
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) config = JSON.parse(stored);
             } catch(e) {}
             document.getElementById('login-lab-name').textContent = config.clinicName || 'LabOS';
         }
 
-        async function attemptLogin() {
+        function attemptLogin() {
             loadConfig();
-            const email = document.getElementById('login-email').value.trim().toLowerCase();
-            const password = document.getElementById('login-pass').value;
+            const emailInput = document.getElementById('login-email').value.trim().toLowerCase();
+            const passwordInput = document.getElementById('login-pass').value;
             const errEl = document.getElementById('login-error');
 
-            if (!email || !password) { errEl.textContent = "⚠ Fill out all fields."; errEl.classList.remove('hidden'); return; }
+            if (!emailInput || !passwordInput) {
+                errEl.textContent = "⚠ Please fill out all login fields.";
+                errEl.classList.remove('hidden');
+                return;
+            }
 
-            try {
-                const response = await fetch(`${BASE_URL}/auth/v1/token?grant_type=password&apikey=${ANON_KEY}`, {
-                    method: 'POST',
-                    headers: {
-                        'apikey': ANON_KEY,
-                        'Authorization': `Bearer ${ANON_KEY}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email, password })
-                });
+            const matchedStaff = (config.staffRecords || []).find(s => s.email.toLowerCase() === emailInput);
 
-                const data = await response.json();
-
-                if (!response.ok) {
-                    errEl.textContent = `⚠ ${data.error_description || data.message || 'Authentication failed'}`;
-                    errEl.classList.remove('hidden');
-                    return;
-                }
-
+            if (matchedStaff) {
                 errEl.classList.add('hidden');
                 currentUser = {
-                    name: data.user?.user_metadata?.full_name || email.split('@')[0],
-                    email: data.user?.email,
-                    role: data.user?.user_metadata?.role || 'cs'
+                    name: matchedStaff.name,
+                    email: matchedStaff.email,
+                    role: matchedStaff.role || 'cs'
                 };
                 enterApp();
-            } catch (err) {
-                errEl.textContent = "⚠ Network failure connecting to server.";
+            } else {
+                errEl.textContent = "⚠ This email isn't registered in the dashboard config yet.";
                 errEl.classList.remove('hidden');
             }
         }
@@ -123,6 +113,7 @@
         function enterApp() {
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('app-layout').classList.remove('hidden');
+            
             document.getElementById('sidebar-lab-name').textContent = config.clinicName;
             document.getElementById('sidebar-user-name').textContent = currentUser.name;
             document.getElementById('sidebar-user-email').textContent = currentUser.email;
@@ -130,20 +121,34 @@
             const roleBadge = document.getElementById('role-badge');
             roleBadge.textContent = currentUser.role.toUpperCase();
             roleBadge.className = `shrink-0 px-2 py-0.5 text-[9px] font-black rounded uppercase tracking-wider ${currentUser.role === 'nurse' ? 'bg-emerald-800 text-emerald-200' : 'bg-blue-800 text-blue-200'}`;
+
+            showToast(`Space Matrix: ${config.clinicName}`, 'info');
             navTo('dashboard');
         }
 
         function logout() {
-            currentUser = null; document.getElementById('app-layout').classList.add('hidden'); document.getElementById('login-screen').classList.remove('hidden');
-            document.getElementById('login-email').value = ''; document.getElementById('login-pass').value = '';
+            currentUser = null;
+            document.getElementById('app-layout').classList.add('hidden');
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('login-email').value = '';
+            document.getElementById('login-pass').value = '';
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `bg-slate-800 text-white px-5 py-3 rounded-lg shadow-xl font-bold text-sm border-l-4 ${type==='error'?'border-red-500':'border-emerald-500'}`;
+            toast.textContent = message;
+            document.getElementById('toast-container').appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
         }
 
         function navTo(tabName) {
             currentNavTab = tabName;
             document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.className = "nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 text-slate-300 font-medium text-sm";
+                btn.className = "nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 text-slate-300 font-medium transition-colors text-sm";
                 btn.style.backgroundColor = "";
             });
+            
             const activeBtn = document.getElementById(`nav-${tabName}`);
             if(activeBtn) {
                 activeBtn.style.backgroundColor = config.themeColor || '#2563eb';
@@ -158,6 +163,7 @@
                 container.innerHTML = `
                     <div class="mb-6 border-b pb-4">
                         <h2 class="text-2xl font-black text-slate-800">Operational Workspace Dashboard</h2>
+                        <p class="text-xs text-slate-400 uppercase tracking-wider font-bold mt-1">Authorized Agency Branch: ${config.locations[0] || 'Main Headquarters'}</p>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                         <div class="bg-white border rounded-xl p-5 shadow-sm">
@@ -173,9 +179,21 @@
                             <p class="text-2xl font-black text-blue-600 mt-1">${config.currency || 'USD'}</p>
                         </div>
                     </div>
+                    <div class="bg-white border border-slate-200 rounded-2xl p-6">
+                        <h3 class="font-bold text-base text-slate-800 mb-2">Available Clinical Service Profiles</h3>
+                        <div class="divide-y font-medium text-xs text-slate-600">
+                            ${(config.services || []).map(s => `
+                                <div class="py-3 flex justify-between">
+                                    <span>🧪 ${s.name}</span>
+                                    <span class="font-black text-slate-800">${s.price} ${config.currency}</span>
+                                </div>
+                            `).join('') || '<p class="text-slate-400 italic py-2">No active tests populated in the master catalog.</p>'}
+                        </div>
+                    </div>
                 `;
             }
         }
+
         loadConfig();
     </script>
 </body>

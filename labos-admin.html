@@ -10,32 +10,7 @@
 
     <div id="toast-container" class="fixed top-5 right-5 z-[100] flex flex-col gap-2 pointer-events-none max-w-sm w-full h-auto"></div>
 
-    <div id="admin-login-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900">
-        <div class="w-full max-w-md px-6">
-            <div class="text-center mb-8">
-                <h1 class="text-4xl font-black text-white tracking-tight mb-1">LabOS Admin</h1>
-                <p class="text-slate-400 text-sm font-medium">Enterprise Management Control Console</p>
-            </div>
-            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-8 shadow-2xl">
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Admin Email</label>
-                        <input type="email" id="admin-email" class="w-full bg-slate-700 border border-slate-600 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 text-sm" placeholder="admin@companyone.com">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Password</label>
-                        <input type="password" id="admin-pass" class="w-full bg-slate-700 border border-slate-600 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 text-sm" placeholder="••••••••" onkeydown="if(event.key==='Enter') attemptAdminLogin()">
-                    </div>
-                    <div id="admin-login-error" class="hidden text-red-400 text-sm font-bold bg-red-900/20 border border-red-800/30 rounded-lg px-4 py-2.5"></div>
-                    <button onclick="attemptAdminLogin()" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl transition-all shadow-lg mt-2 text-base">
-                        Authenticate Admin Session
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="app-layout" class="hidden flex flex-col h-screen">
+    <div class="flex flex-col h-screen">
         <header class="bg-slate-900 text-white px-8 py-4 flex justify-between items-center shadow-md z-10 shrink-0">
             <div>
                 <h1 class="text-xl font-black tracking-tight" id="header-title">Lab Management Dashboard</h1>
@@ -45,7 +20,6 @@
                 <button onclick="saveClinicSetup()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-lg shadow transition-colors">
                     💾 Save All Configurations
                 </button>
-                <button onclick="logoutAdmin()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-400 text-xs font-bold rounded-lg transition-colors">Sign Out</button>
             </div>
         </header>
 
@@ -59,18 +33,67 @@
             </aside>
 
             <main class="flex-1 overflow-y-auto p-8">
+
                 <div id="content-analytics" class="space-y-6">
                     <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                        <h3 class="text-base font-black text-slate-800 mb-2">Global Records Matrix</h3>
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-100">
+                            <div>
+                                <h3 class="text-base font-black text-slate-800">Global Records Matrix</h3>
+                                <p class="text-xs text-slate-400">Filter datasets dynamically and generate spreadsheet exports.</p>
+                            </div>
+                            <button onclick="exportDataToCSV()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-lg transition-colors flex items-center gap-1.5 self-start md:self-auto">
+                                📥 Export Filtered CSV
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">Appointment Status</label>
+                                <select id="filter-status" onchange="filterRecordsTable()" class="w-full border border-slate-200 rounded-lg p-2 text-xs bg-slate-50 font-medium">
+                                    <option value="ALL">All Statuses</option>
+                                    <option value="booked">Booked</option>
+                                    <option value="confirmed">Confirmed</option>
+                                    <option value="collected">Collected</option>
+                                    <option value="report_issued">Report Issued</option>
+                                    <option value="cancelled">Cancelled</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">Invoice Status</label>
+                                <select id="filter-invoice" onchange="filterRecordsTable()" class="w-full border border-slate-200 rounded-lg p-2 text-xs bg-slate-50 font-medium">
+                                    <option value="ALL">All Invoices</option>
+                                    <option value="WITH">With Invoice Linked</option>
+                                    <option value="WITHOUT">Without Invoice Linked</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">Medical Report Status</label>
+                                <select id="filter-report" onchange="filterRecordsTable()" class="w-full border border-slate-200 rounded-lg p-2 text-xs bg-slate-50 font-medium">
+                                    <option value="ALL">All Reports</option>
+                                    <option value="WITH">With Report Uploaded</option>
+                                    <option value="WITHOUT">Without Report Uploaded</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">Search Identifier</label>
+                                <input type="text" id="filter-search" oninput="filterRecordsTable()" placeholder="Patient name, phone, test..." class="w-full border border-slate-200 rounded-lg p-2 text-xs bg-slate-50 outline-none focus:border-blue-500">
+                            </div>
+                        </div>
+
                         <div class="overflow-x-auto border border-slate-100 rounded-xl">
                             <table class="w-full text-left text-xs border-collapse">
                                 <thead class="bg-slate-100 text-slate-600 font-bold uppercase tracking-wider border-b border-slate-200">
                                     <tr>
                                         <th class="p-3">Patient info</th>
                                         <th class="p-3">Test Requested</th>
+                                        <th class="p-3">Area</th>
+                                        <th class="p-3">Status</th>
+                                        <th class="p-3">Invoicing</th>
+                                        <th class="p-3">Report File</th>
                                     </tr>
                                 </thead>
-                                <tbody id="records-table-body" class="divide-y divide-slate-100 font-medium"></tbody>
+                                <tbody id="records-table-body" class="divide-y divide-slate-100 font-medium">
+                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -78,19 +101,30 @@
 
                 <div id="content-branding" class="hidden space-y-6">
                     <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
-                        <h3 class="text-base font-black text-slate-800">White-Label Client Brand Setup</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <h3 class="text-base font-black text-slate-800">White-Label Client Brand Setup</h3>
+                            <p class="text-xs text-slate-400">Configure corporate information tailored for your buyer's lab company.</p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">Corporate Lab / Clinic Name</label>
-                                <input type="text" id="setup-name" placeholder="e.g., Apex Diagnostics" class="w-full border rounded-lg p-2.5 text-sm outline-none">
+                                <input type="text" id="setup-name" placeholder="e.g., Apex Labs" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm outline-none focus:border-blue-500">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Theme Color & Currency</label>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Primary Theme Interface Color</label>
                                 <div class="flex gap-2">
-                                    <input type="color" id="setup-color" value="#2563eb" class="h-10 w-12 border rounded cursor-pointer">
-                                    <input type="text" id="setup-currency" placeholder="USD" class="flex-1 border rounded-lg p-2 text-sm outline-none">
+                                    <input type="color" id="setup-color" value="#2563eb" class="h-10 w-12 border border-slate-300 rounded cursor-pointer p-0.5">
+                                    <input type="text" id="setup-currency" placeholder="Currency Code (e.g., USD, AED, JOD)" class="flex-1 border border-slate-300 rounded-lg p-2 text-sm outline-none">
                                 </div>
                             </div>
+                        </div>
+                        <div class="border-t border-slate-100 pt-4">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Add Operational Coverage Cities / Branches</label>
+                            <div class="flex gap-2 max-w-md">
+                                <input type="text" id="new-location" placeholder="e.g., Amman - Abdoun" class="flex-1 border border-slate-300 rounded-lg p-2 text-xs outline-none">
+                                <button onclick="addLocationNode()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-lg transition-colors">Add</button>
+                            </div>
+                            <div id="locations-bag" class="flex flex-wrap gap-2 mt-3"></div>
                         </div>
                     </div>
                 </div>
@@ -99,162 +133,236 @@
                     <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
                         <h3 class="text-base font-black text-slate-800 mb-4">Laboratory Catalog Customization</h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-                            <input type="text" id="catalog-test-name" placeholder="Test Name" class="md:col-span-2 border rounded-lg p-2 text-xs outline-none">
-                            <input type="number" id="catalog-test-price" placeholder="Price" class="border rounded-lg p-2 text-xs outline-none">
+                            <input type="text" id="catalog-test-name" placeholder="Test Name (e.g., Lipid Panel)" class="md:col-span-2 border border-slate-300 rounded-lg p-2 text-xs outline-none">
+                            <input type="number" id="catalog-test-price" placeholder="Base Price" class="border border-slate-300 rounded-lg p-2 text-xs outline-none">
                         </div>
-                        <button onclick="addCatalogNode()" class="w-full py-2 bg-slate-800 text-white font-bold text-xs rounded-lg">Insert Entry</button>
+                        <button onclick="addCatalogNode()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-lg transition-colors">Insert New Entry to Catalog</button>
                         <div id="catalog-list-bag" class="space-y-2 mt-4"></div>
                     </div>
                 </div>
 
                 <div id="content-staff" class="hidden space-y-6">
                     <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                        <h3 class="text-base font-black text-slate-800 mb-4">Secure Employee Invites</h3>
+                        <div class="mb-4">
+                            <h3 class="text-base font-black text-slate-800">Operational Workspace Registration</h3>
+                            <p class="text-xs text-slate-400">Add operational accounts directly to the dashboard config map layer for validation testing.</p>
+                        </div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-                            <input type="text" id="staff-name" placeholder="Full Name" class="border rounded-lg p-2 text-xs outline-none">
-                            <input type="email" id="staff-email" placeholder="work@email.com" class="border rounded-lg p-2 text-xs outline-none">
-                            <select id="staff-role" class="border rounded-lg p-2 text-xs font-bold">
-                                <option value="nurse">Nurse</option>
+                            <input type="text" id="staff-name" placeholder="Full Employee Name" class="border border-slate-300 rounded-lg p-2 text-xs outline-none">
+                            <input type="email" id="staff-email" placeholder="work@email.com" class="border border-slate-300 rounded-lg p-2 text-xs outline-none">
+                            <select id="staff-role" class="border border-slate-300 rounded-lg p-2 text-xs text-slate-600 font-bold">
+                                <option value="nurse">Nurse (Mobile Extraction)</option>
                                 <option value="cs">Customer Service Agent</option>
                             </select>
                         </div>
-                        <button onclick="triggerStaffInvitation()" class="w-full py-2.5 bg-blue-600 text-white font-black text-xs rounded-lg shadow">
-                            ✉️ Dispatch Official Invite Link
+                        <button onclick="triggerStaffInvitation()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-black text-xs rounded-lg shadow transition-colors">
+                            ➕ Register Internal Workspace Employee Account
                         </button>
                         <div id="staff-list-bag" class="space-y-2 mt-6"></div>
                     </div>
                 </div>
+
             </main>
         </div>
     </div>
 
     <script>
-        const BASE_URL = 'https://rgoghcdckealecqxrpwl.supabase.co'; 
-        const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdWBhYmFzZSIsInJlZiI6InJnb2doY2Rja2VhbGVjcXhycHdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1OTAzMTUsImV4cCI6MjA5ODE2NjMxNX0.e6CXQZXfEeRfWtZF9GfXSDITrsQb3GtPT-uUnxeE1iU';
-        const EXPLICIT_PORTAL_REDIRECT = 'https://jreebuman.github.io/lab-system/labos-portal.html';
-                
-        let appState = { clinicName: '', themeColor: '#2563eb', currency: '', locations: [], services: [], staffRecords: [], patientRecords: [] };
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdWJhc2FzZSIsInJlZiI6InJnb2doY2Rja2VhbGVjcXhycHdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5MDMxNSwiZXhwIjoyMDk4MTY2MzE1fQ.e6CXQZXfEeRfWtZF9GfXSDITrsQb3GtPT-uUnxeE1iU';
 
-        async function attemptAdminLogin() {
-            const email = document.getElementById('admin-email').value.trim();
-            const password = document.getElementById('admin-pass').value;
-            const errEl = document.getElementById('admin-login-error');
-
-            if(!email || !password) { errEl.textContent = "⚠ Fill out fields."; errEl.classList.remove('hidden'); return; }
-
-            try {
-                const response = await fetch(`${BASE_URL}/auth/v1/token?grant_type=password&apikey=${ANON_KEY}`, {
-                    method: 'POST',
-                    headers: {
-                        'apikey': ANON_KEY,
-                        'Authorization': `Bearer ${ANON_KEY}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email, password })
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    errEl.textContent = `⚠ ${data.error_description || data.message || 'Authentication failed'}`;
-                    errEl.classList.remove('hidden');
-                    return;
-                }
-
-                if (data.user?.user_metadata?.role === 'admin') {
-                    errEl.classList.add('hidden');
-                    document.getElementById('admin-login-screen').classList.add('hidden');
-                    document.getElementById('app-layout').classList.remove('hidden');
-                    loadInitialSetupState();
-                } else {
-                    errEl.textContent = "⚠ Access Denied: Profile is missing the Admin role flag.";
-                    errEl.classList.remove('hidden');
-                }
-            } catch (err) {
-                errEl.textContent = "⚠ Connection network blockade.";
-                errEl.classList.remove('hidden');
-            }
-        }
-
-        async function triggerStaffInvitation() {
-            const name = document.getElementById('staff-name').value.trim();
-            const email = document.getElementById('staff-email').value.trim();
-            const role = document.getElementById('staff-role').value;
-
-            if(!name || !email) { showToast('Complete inputs'); return; }
-
-            try {
-                const response = await fetch(`${BASE_URL}/auth/v1/signup`, {
-                    method: 'POST',
-                    headers: {
-                        'apikey': ANON_KEY,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        email: email,
-                        password: 'TemporaryPasscode123!',
-                        options: {
-                            emailRedirectTo: EXPLICIT_PORTAL_REDIRECT,
-                            data: { full_name: name, role: role, clinic_name: appState.clinicName || 'LabOS Space' }
-                        }
-                    })
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    showToast(`Error: ${data.message || 'Invite failed'}`);
-                } else {
-                    showToast(`Invite processed straight to Mailtrap Sandbox!`);
-                    appState.staffRecords.push({ name, email, role, status: 'Invite Dispatched' });
-                    saveClinicSetup();
-                    renderStaffList();
-                }
-            } catch (err) {
-                showToast("Network request crashed.");
-            }
-        }
+        let appState = {
+            clinicName: '', themeColor: '#2563eb', currency: '', locations: [], services: [], staffRecords: [], patientRecords: []
+        };
 
         function switchTab(tabId) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.className = "tab-btn w-full text-left px-3 py-2.5 rounded-lg font-medium text-sm text-slate-300 hover:bg-slate-700");
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.className = "tab-btn w-full text-left px-3 py-2.5 rounded-lg font-medium text-sm text-slate-300 hover:bg-slate-700 transition-colors";
+            });
             document.getElementById('tab-' + tabId).className = "tab-btn w-full text-left px-3 py-2.5 rounded-lg font-bold text-sm text-white bg-slate-700";
-            ['analytics', 'branding', 'catalog', 'staff'].forEach(id => document.getElementById('content-' + id).classList.add('hidden'));
+            
+            ['analytics', 'branding', 'catalog', 'staff'].forEach(id => {
+                document.getElementById('content-' + id).classList.add('hidden');
+            });
             document.getElementById('content-' + tabId).classList.remove('hidden');
         }
 
         function showToast(text) {
             const toast = document.createElement('div');
-            toast.className = "p-3 text-xs font-bold rounded-lg text-white bg-emerald-600";
-            toast.textContent = text; document.getElementById('toast-container').appendChild(toast);
+            toast.className = "p-3 text-xs font-bold rounded-lg text-white shadow-lg bg-emerald-600";
+            toast.textContent = text;
+            document.getElementById('toast-container').appendChild(toast);
             setTimeout(() => toast.remove(), 3500);
         }
 
-        function logoutAdmin() {
-            document.getElementById('app-layout').classList.add('hidden');
-            document.getElementById('admin-login-screen').classList.remove('hidden');
+        function renderRecordsMatrix(dataset) {
+            const body = document.getElementById('records-table-body');
+            if(!body) return;
+            if(dataset.length === 0) {
+                body.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400 italic">No historical patient appointments logged inside this config workspace layer.</td></tr>`;
+                return;
+            }
+            body.innerHTML = dataset.map(r => `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="p-3 border-b border-slate-100">
+                        <div class="font-bold text-slate-800">${r.name}</div>
+                        <div class="text-[10px] text-slate-400">${r.phone}</div>
+                    </td>
+                    <td class="p-3 border-b border-slate-100 text-slate-700">${r.test}</td>
+                    <td class="p-3 border-b border-slate-100 text-slate-500">${r.area}</td>
+                    <td class="p-3 border-b border-slate-100">
+                        <span class="px-2 py-0.5 text-[10px] font-black rounded uppercase ${r.status==='report_issued'?'bg-green-100 text-green-800':r.status==='cancelled'?'bg-red-100 text-red-800':'bg-amber-100 text-amber-800'}">${r.status}</span>
+                    </td>
+                    <td class="p-3 border-b border-slate-100">${r.hasInvoice ? '✅ Documented' : '❌ Awaiting'}</td>
+                    <td class="p-3 border-b border-slate-100">${r.hasReport ? '📊 Linked & Ready' : '⏳ Missing'}</td>
+                </tr>
+            `).join('');
         }
-        function renderRecordsMatrix() {
-            document.getElementById('records-table-body').innerHTML = `<tr><td colspan="2" class="p-8 text-center text-slate-400 italic">No incoming live data streams.</td></tr>`;
+
+        function filterRecordsTable() {
+            const statusVal = document.getElementById('filter-status').value;
+            const invoiceVal = document.getElementById('filter-invoice').value;
+            const reportVal = document.getElementById('filter-report').value;
+            const searchVal = document.getElementById('filter-search').value.toLowerCase().trim();
+
+            const filtered = appState.patientRecords.filter(r => {
+                const matchesStatus = (statusVal === 'ALL' || r.status === statusVal);
+                const matchesInvoice = (invoiceVal === 'ALL' || (invoiceVal === 'WITH' && r.hasInvoice) || (invoiceVal === 'WITHOUT' && !r.hasInvoice));
+                const matchesReport = (reportVal === 'ALL' || (reportVal === 'WITH' && r.hasReport) || (reportVal === 'WITHOUT' && !r.hasReport));
+                const matchesSearch = (!searchVal || r.name.toLowerCase().includes(searchVal) || r.phone.includes(searchVal) || r.test.toLowerCase().includes(searchVal));
+                return matchesStatus && matchesInvoice && matchesReport && matchesSearch;
+            });
+            renderRecordsMatrix(filtered);
         }
-        function addCatalogNode() {}
+
+        function exportDataToCSV() {
+            if(appState.patientRecords.length === 0) { alert('No datasets loaded to export.'); return; }
+            const rows = [['Patient Name', 'Phone Number', 'Test Type', 'Location Branch', 'Workflow Status', 'Invoice Status', 'Report Status']];
+            appState.patientRecords.forEach(r => {
+                rows.push([r.name, r.phone, r.test, r.area, r.status, r.hasInvoice?'Linked':'Missing', r.hasReport?'Uploaded':'Missing']);
+            });
+            let csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Data_Matrix_Export.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("Dataset exported as CSV spreadsheet!");
+        }
+
+        function addLocationNode() {
+            const input = document.getElementById('new-location');
+            if(input.value.trim()) {
+                appState.locations.push(input.value.trim());
+                input.value = '';
+                renderBrandingLists();
+            }
+        }
+
+        function removeLocationNode(index) {
+            appState.locations.splice(index, 1);
+            renderBrandingLists();
+        }
+
+        function renderBrandingLists() {
+            document.getElementById('locations-bag').innerHTML = appState.locations.map((l, i) => `
+                <div class="bg-slate-100 border text-slate-700 font-bold px-2.5 py-1 rounded-lg flex items-center gap-1.5 text-xs">
+                    <span>📍</span> ${l}
+                    <button onclick="removeLocationNode(${i})" class="text-red-500 font-black ml-1">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function addCatalogNode() {
+            const name = document.getElementById('catalog-test-name').value.trim();
+            const price = parseFloat(document.getElementById('catalog-test-price').value);
+            if(name && !isNaN(price)) {
+                appState.services.push({ id: 'srv_' + Date.now(), name, price });
+                document.getElementById('catalog-test-name').value = '';
+                document.getElementById('catalog-test-price').value = '';
+                renderCatalogList();
+            }
+        }
+
+        function removeCatalogNode(index) {
+            appState.services.splice(index, 1);
+            renderCatalogList();
+        }
+
+        function renderCatalogList() {
+            document.getElementById('catalog-list-bag').innerHTML = appState.services.map((s, i) => `
+                <div class="flex justify-between items-center p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs">
+                    <span class="font-bold text-slate-800">${s.name}</span>
+                    <div class="flex items-center gap-3">
+                        <span class="font-black text-blue-600">${s.price}</span>
+                        <button onclick="removeCatalogNode(${i})" class="text-slate-400 hover:text-red-500 font-bold">✕</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function triggerStaffInvitation() {
+            const name = document.getElementById('staff-name').value.trim();
+            const email = document.getElementById('staff-email').value.trim();
+            const role = document.getElementById('staff-role').value;
+
+            if(!name || !email) { showToast('Complete employee credentials'); return; }
+
+            appState.staffRecords.push({ name, email, role, status: 'Active Sync Map' });
+            document.getElementById('staff-name').value = '';
+            document.getElementById('staff-email').value = '';
+            
+            showToast(`Account successfully compiled into configuration memory layer!`);
+            localStorage.setItem('labos_tenant_config', JSON.stringify(appState));
+            renderStaffList();
+        }
+
+        function removeStaffNode(index) {
+            appState.staffRecords.splice(index, 1);
+            localStorage.setItem('labos_tenant_config', JSON.stringify(appState));
+            renderStaffList();
+        }
+
         function renderStaffList() {
-            document.getElementById('staff-list-bag').innerHTML = appState.staffRecords.map(s => `<div class="p-3 bg-slate-50 border rounded-xl flex justify-between items-center text-xs"><div><p class="font-bold text-slate-800">${s.name} <span class="text-slate-400 font-normal">(${s.email})</span></p><p class="text-blue-600 uppercase font-black tracking-wider mt-0.5">${s.role}</p></div><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">${s.status}</span></div>`).join('');
+            document.getElementById('staff-list-bag').innerHTML = appState.staffRecords.map((s, i) => `
+                <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex justify-between items-center text-xs">
+                    <div>
+                        <p class="font-bold text-slate-800">${s.name} <span class="text-[10px] text-slate-400 font-normal">(${s.email})</span></p>
+                        <p class="text-[10px] text-blue-600 uppercase font-black tracking-wider mt-0.5">${s.role}</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold text-[10px]">${s.status}</span>
+                        <button onclick="removeStaffNode(${i})" class="text-slate-400 hover:text-red-500 font-bold text-sm">✕</button>
+                    </div>
+                </div>
+            `).join('');
         }
+
         function saveClinicSetup() {
             appState.clinicName = document.getElementById('setup-name').value.trim() || 'LabOS Space';
             appState.themeColor = document.getElementById('setup-color').value;
             appState.currency = document.getElementById('setup-currency').value.toUpperCase().trim() || 'USD';
+            
             localStorage.setItem('labos_tenant_config', JSON.stringify(appState));
-            showToast('Configurations synchronized.');
+            showToast('All white-label branding configurations updated successfully.');
         }
+
         function loadInitialSetupState() {
             const cached = localStorage.getItem('labos_tenant_config');
-            if(cached) { try { appState = JSON.parse(cached); } catch(e) {} }
+            if(cached) {
+                try { appState = JSON.parse(cached); } catch(e) {}
+            }
             document.getElementById('setup-name').value = appState.clinicName || '';
             document.getElementById('setup-color').value = appState.themeColor || '#2563eb';
             document.getElementById('setup-currency').value = appState.currency || '';
-            renderRecordsMatrix(); renderStaffList();
+            
+            renderRecordsMatrix(appState.patientRecords);
+            renderBrandingLists();
+            renderCatalogList();
+            renderStaffList();
         }
+
+        loadInitialSetupState();
     </script>
 </body>
 </html>
