@@ -3,198 +3,619 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LabOS — Staff Portal</title>
+    <title>Lab Workflow - Unified Cloud Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-50 font-sans text-slate-800 h-screen flex overflow-hidden">
 
     <div id="toast-container" class="fixed top-5 right-5 z-[100] flex flex-col gap-2 pointer-events-none"></div>
 
-    <div id="login-screen" class="absolute inset-0 z-50 flex items-center justify-center bg-slate-900">
-        <div class="w-full max-w-md px-6">
-            <div class="text-center mb-8">
-                <h1 id="login-lab-name" class="text-4xl font-black text-white tracking-tight mb-1">LabOS</h1>
-                <p class="text-slate-400 text-sm font-medium">Staff Portal — Sign In</p>
-            </div>
-
-            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-8 shadow-2xl">
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Email / Identifier</label>
-                        <input type="email" id="login-email" class="w-full bg-slate-700 border border-slate-600 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 text-sm" placeholder="employee@clinic.com">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Password</label>
-                        <input type="password" id="login-pass" class="w-full bg-slate-700 border border-slate-600 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 text-sm" placeholder="••••••••" onkeydown="if(event.key==='Enter') attemptLogin()">
-                    </div>
-                    <div id="login-error" class="hidden text-red-400 text-sm font-bold bg-red-900/20 border border-red-800/30 rounded-lg px-4 py-2.5"></div>
-                    <button onclick="attemptLogin()" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl transition-all shadow-lg mt-2 text-base">
-                        Sign In
-                    </button>
+    <div id="login-screen" class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-slate-900 px-6">
+        <h1 class="text-5xl font-black mb-2 text-white tracking-tight">LabOS Portal</h1>
+        <p class="text-slate-400 mb-8 font-medium">Enterprise Unified Database Login Panel</p>
+        
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-8 shadow-2xl w-full max-w-md">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Workspace Email</label>
+                    <input type="email" id="login-email" class="w-full bg-slate-700 border border-slate-600 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 text-sm" placeholder="nurse@company.com">
                 </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Password</label>
+                    <input type="password" id="login-pass" class="w-full bg-slate-700 border border-slate-600 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 text-sm" placeholder="••••••••" onkeydown="if(event.key==='Enter') attemptLogin()">
+                </div>
+                <div id="login-error" class="hidden text-red-400 text-sm font-bold bg-red-900/20 border border-red-800/30 rounded-lg px-4 py-2.5"></div>
+                <button onclick="attemptLogin()" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl transition-all shadow-lg text-base">
+                    Authenticate Account Session
+                </button>
             </div>
         </div>
     </div>
 
-    <div id="app-layout" class="hidden w-full h-full flex">
-        <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col shadow-2xl z-20 shrink-0">
-            <div class="h-16 flex items-center px-5 border-b border-slate-800 gap-3">
-                <div class="flex-1 min-w-0">
-                    <h2 class="text-lg font-black text-white tracking-tight truncate" id="sidebar-lab-name">LabOS</h2>
-                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest truncate" id="sidebar-user-name">Staff Portal</p>
-                </div>
-                <span id="role-badge" class="shrink-0 px-2 py-0.5 text-[9px] font-black rounded uppercase tracking-wider">ROLE</span>
+    <div id="app-layout" class="hidden flex w-full h-full">
+
+        <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col shadow-2xl z-20">
+            <div class="h-16 flex items-center px-6 border-b border-slate-800">
+                <h2 class="text-2xl font-black text-white tracking-tight" id="sidebar-title">LabOS</h2>
+                <span id="role-badge" class="ml-3 px-2 py-0.5 text-[10px] font-bold rounded uppercase tracking-wider">ROLE</span>
             </div>
 
-            <nav class="flex-1 py-5 px-3 space-y-1">
-                <p class="px-3 text-[9px] font-black uppercase tracking-widest text-slate-600 mb-3">Navigation</p>
-                <button onclick="navTo('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors text-sm">🏠 Dashboard</button>
+            <nav class="flex-1 py-6 px-3 space-y-2">
+                <p class="px-3 text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3">Navigation</p>
+                <button onclick="navTo('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors"><span class="text-lg">🏠</span> Active Dashboard</button>
+                <button onclick="navTo('collected')" id="nav-collected" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 font-medium transition-colors"><span class="text-lg">🩸</span> Collected Samples</button>
+                <button onclick="navTo('history')" id="nav-history" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 font-medium transition-colors"><span class="text-lg">🕒</span> History & Archive</button>
             </nav>
 
             <div class="p-4 border-t border-slate-800 space-y-2">
-                <div class="px-3 py-2 rounded-lg bg-slate-800/50">
-                    <p class="text-[9px] text-slate-500 uppercase tracking-wider font-bold">Logged in as</p>
-                    <p class="text-xs text-slate-300 font-bold truncate mt-0.5" id="sidebar-user-email">—</p>
+                <div class="px-3 py-2 rounded-lg bg-slate-800/50 text-xs">
+                    <p class="text-slate-500 uppercase font-bold tracking-wide text-[9px]">Logged sync target</p>
+                    <p id="user-display-email" class="text-slate-300 font-bold truncate mt-0.5">—</p>
                 </div>
-                <button onclick="logout()" class="w-full py-2 text-sm text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg font-bold flex items-center justify-center gap-2">🚪 Sign Out</button>
+                <button onclick="logout()" class="w-full py-2 text-sm text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg font-bold flex items-center justify-center gap-2 transition-colors">🚪 Secure Logout</button>
             </div>
         </aside>
 
-        <main class="flex-1 flex flex-col h-screen overflow-y-auto bg-slate-50">
-            <div id="main-content" class="p-8 max-w-6xl mx-auto w-full pb-24"></div>
+        <main class="flex-1 flex flex-col h-screen overflow-y-auto bg-slate-50 relative">
+            <div id="main-content" class="p-8 max-w-6xl mx-auto w-full pb-20"></div>
         </main>
     </div>
 
-    <script>
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdWJhc2FzZSIsInJlZiI6InJnb2doY2Rja2VhbGVjcXhycHdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5MDMxNSwiZXhwIjoyMDk4MTY2MzE1fQ.e6CXQZXfEeRfWtZF9GfXSDITrsQb3GtPT-uUnxeE1iU';
-        
-        const STORAGE_KEY = 'labos_tenant_config';
-        let config = {
-            clinicName: 'LabOS Space', themeColor: '#2563eb', currency: 'USD', locations: [], services: [], staffRecords: []
-        };
-        let currentUser = null; let currentNavTab = 'dashboard';
+    <div id="booking-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-xl border border-slate-200 transform transition-all">
+            <h3 class="text-2xl font-bold mb-4 text-slate-800" id="modal-title">Book Patient</h3>
+            <form id="booking-form" onsubmit="submitBooking(event)" class="space-y-4">
+                <input type="hidden" id="slot-id">
 
-        function loadConfig() {
-            try {
-                const stored = localStorage.getItem(STORAGE_KEY);
-                if (stored) config = JSON.parse(stored);
-            } catch(e) {}
-            document.getElementById('login-lab-name').textContent = config.clinicName || 'LabOS';
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1">Patient Name <span class="text-red-500">*</span></label>
+                        <input type="text" id="p-name" required class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1">Test Type</label>
+                        <select id="p-test" onchange="calculatePrice()" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <option value="Blood Panel">Comprehensive Blood Panel</option>
+                            <option value="PCR Test">PCR Test</option>
+                            <option value="Lipid Profile">Lipid Profile</option>
+                            <option value="Vitamin D Screen">Vitamin D Screen</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-slate-100 pt-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1">Phone Number <span class="text-red-500">*</span></label>
+                        <input type="tel" id="p-phone" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="050-XXXXXXX">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1">Email Address <span class="text-red-500">*</span></label>
+                        <input type="email" id="p-email" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="patient@email.com">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-slate-100 pt-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1">Complete Address <span class="text-red-500">*</span></label>
+                        <input type="text" id="p-address" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Villa 12, Street 4">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1">Google Maps Pin (URL)</label>
+                        <input type="url" id="p-pin" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="http://google...">
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 flex justify-between items-center mt-2">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="p-discount" onchange="calculatePrice()" class="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
+                        <label for="p-discount" class="ml-2 font-bold text-blue-900 cursor-pointer">Apply 10% Discount</label>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xs text-blue-600 font-bold uppercase tracking-wide">Total Price</p>
+                        <p id="display-price" class="text-2xl font-black text-blue-800">300.00 AED</p>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-3 mt-6 pt-4 border-t border-slate-200">
+                    <button type="button" onclick="closeModal()" class="px-5 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-bold transition-colors">Cancel</button>
+                    <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 shadow-md transition-colors">Confirm Booking</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 🔒 Supabase Authentication Identity Layout Configurations
+        const BASE_URL = 'https://rgoghcdckealecqxrpwl.supabase.co'; 
+        const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdWJhc2FzZSIsInJlZiI6InJnb2doY2Rja2VhbGVjcXhycHdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1OTAzMTUsImV4cCI6MjA5ODE2NjMxNX0.e6CXQZXfEeRfWtZF9GfXSDITrsQb3GtPT-uUnxeE1iU';
+
+        // Core Operational Structures Mappings
+        let slots = [];
+        let pastRecords = [];
+        const prices = { "Blood Panel": 300, "PCR Test": 150, "Lipid Profile": 200, "Vitamin D Screen": 250 };
+        let currentUserRole = '';
+        let currentNavTab = 'dashboard';
+
+        // --- Custom Alert System ---
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            let colorClasses = type === 'success' ? 'bg-emerald-600' : (type === 'error' ? 'bg-red-600' : 'bg-blue-600');
+            let icon = type === 'success' ? '✓' : (type === 'error' ? '⚠' : 'ℹ');
+            toast.className = `${colorClasses} text-white px-6 py-3 rounded-lg shadow-xl font-bold text-sm transform transition-all duration-300 translate-x-full opacity-0 flex items-center gap-2`;
+            toast.innerHTML = `<span>${icon}</span> ${message}`;
+            document.getElementById('toast-container').appendChild(toast);
+            setTimeout(() => toast.classList.remove('translate-x-full', 'opacity-0'), 10);
+            setTimeout(() => { toast.classList.add('opacity-0', 'scale-95'); setTimeout(() => toast.remove(), 300); }, 4000);
         }
 
-        function attemptLogin() {
-            loadConfig();
-            const emailInput = document.getElementById('login-email').value.trim().toLowerCase();
-            const passwordInput = document.getElementById('login-pass').value;
+        // --- Unified Database Auth Handling ---
+        async function attemptLogin() {
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-pass').value;
             const errEl = document.getElementById('login-error');
 
-            if (!emailInput || !passwordInput) {
-                errEl.textContent = "⚠ Please fill out all login fields.";
-                errEl.classList.remove('hidden');
-                return;
-            }
+            if (!email || !password) { errEl.textContent = "⚠ Please specify all credentials."; errEl.classList.remove('hidden'); return; }
 
-            const matchedStaff = (config.staffRecords || []).find(s => s.email.toLowerCase() === emailInput);
+            try {
+                const response = await fetch(`${BASE_URL}/auth/v1/token?grant_type=password&apikey=${ANON_KEY}`, {
+                    method: 'POST',
+                    headers: { 'apikey': ANON_KEY, 'Authorization': `Bearer ${ANON_KEY}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
 
-            if (matchedStaff) {
+                const data = await response.json();
+
+                if (!response.ok) {
+                    errEl.textContent = `⚠ ${data.error_description || data.message || 'Authentication rejected.'}`;
+                    errEl.classList.remove('hidden');
+                    return;
+                }
+
+                // Map target profile type from account metadata attributes!
+                currentUserRole = data.user?.user_metadata?.role || 'cs';
+                document.getElementById('user-display-email').textContent = data.user?.email;
+
                 errEl.classList.add('hidden');
-                currentUser = {
-                    name: matchedStaff.name,
-                    email: matchedStaff.email,
-                    role: matchedStaff.role || 'cs'
-                };
-                enterApp();
-            } else {
-                errEl.textContent = "⚠ This email isn't registered in the dashboard config yet.";
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('app-layout').classList.remove('hidden');
+
+                document.getElementById('sidebar-title').innerText = currentUserRole === 'cs' ? 'CS Portal' : 'Nurse Portal';
+                document.getElementById('role-badge').innerText = currentUserRole;
+                document.getElementById('role-badge').className = `ml-3 px-2 py-0.5 text-[10px] font-bold rounded uppercase tracking-wider ${currentUserRole === 'cs' ? 'bg-blue-900 text-blue-200' : 'bg-emerald-900 text-emerald-200'}`;
+
+                showToast(`Access granted! Verified payload signature role: ${currentUserRole.toUpperCase()}`, "success");
+                navTo('dashboard');
+
+            } catch (err) {
+                errEl.textContent = "⚠ Database handshake validation failure.";
                 errEl.classList.remove('hidden');
             }
-        }
-
-        function enterApp() {
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('app-layout').classList.remove('hidden');
-            
-            document.getElementById('sidebar-lab-name').textContent = config.clinicName;
-            document.getElementById('sidebar-user-name').textContent = currentUser.name;
-            document.getElementById('sidebar-user-email').textContent = currentUser.email;
-
-            const roleBadge = document.getElementById('role-badge');
-            roleBadge.textContent = currentUser.role.toUpperCase();
-            roleBadge.className = `shrink-0 px-2 py-0.5 text-[9px] font-black rounded uppercase tracking-wider ${currentUser.role === 'nurse' ? 'bg-emerald-800 text-emerald-200' : 'bg-blue-800 text-blue-200'}`;
-
-            showToast(`Space Matrix: ${config.clinicName}`, 'info');
-            navTo('dashboard');
         }
 
         function logout() {
-            currentUser = null;
+            currentUserRole = '';
             document.getElementById('app-layout').classList.add('hidden');
             document.getElementById('login-screen').classList.remove('hidden');
             document.getElementById('login-email').value = '';
             document.getElementById('login-pass').value = '';
         }
 
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = `bg-slate-800 text-white px-5 py-3 rounded-lg shadow-xl font-bold text-sm border-l-4 ${type==='error'?'border-red-500':'border-emerald-500'}`;
-            toast.textContent = message;
-            document.getElementById('toast-container').appendChild(toast);
-            setTimeout(() => toast.remove(), 4000);
-        }
-
         function navTo(tabName) {
             currentNavTab = tabName;
             document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.className = "nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 text-slate-300 font-medium transition-colors text-sm";
-                btn.style.backgroundColor = "";
+                btn.className = "nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 text-slate-300 font-medium transition-colors";
             });
-            
-            const activeBtn = document.getElementById(`nav-${tabName}`);
-            if(activeBtn) {
-                activeBtn.style.backgroundColor = config.themeColor || '#2563eb';
-                activeBtn.className = "nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-white font-bold shadow-md text-sm";
-            }
+            let activeColor = currentUserRole === 'cs' ? 'bg-blue-600' : 'bg-emerald-600';
+            let activeBtn = document.getElementById(`nav-${tabName}`);
+            activeBtn.className = `nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-bold text-white shadow-md ${activeColor}`;
             renderMainContent();
         }
 
+        // --- Core Render Router ---
         function renderMainContent() {
             const container = document.getElementById('main-content');
             if (currentNavTab === 'dashboard') {
-                container.innerHTML = `
-                    <div class="mb-6 border-b pb-4">
-                        <h2 class="text-2xl font-black text-slate-800">Operational Workspace Dashboard</h2>
-                        <p class="text-xs text-slate-400 uppercase tracking-wider font-bold mt-1">Authorized Agency Branch: ${config.locations[0] || 'Main Headquarters'}</p>
+                container.innerHTML = currentUserRole === 'cs' ? getCSDashboardHTML() : getNurseDashboardHTML();
+                if (currentUserRole === 'cs' && !document.getElementById('cs-date-filter').value) {
+                    document.getElementById('cs-date-filter').value = new Date().toISOString().split('T')[0];
+                }
+            }
+            else if (currentNavTab === 'collected') container.innerHTML = getCollectedHTML();
+            else if (currentNavTab === 'history') container.innerHTML = getHistoryHTML();
+
+            populateLists();
+        }
+
+        // --- HTML Generators (Structure Only) ---
+        function getCSDashboardHTML() {
+            return `
+                    <div class="flex justify-between items-end mb-6 border-b pb-4">
+                        <div>
+                            <h2 class="text-3xl font-bold text-blue-600">Global Records Dashboard</h2>
+                            <p class="text-gray-500">View and manage all available slots and patient records.</p>
+                        </div>
+                        <div class="flex flex-wrap items-end gap-3">
+                            <div>
+                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Date</label>
+                                <input type="date" id="cs-date-filter" onchange="populateLists()" class="border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 font-medium text-slate-700 bg-white shadow-sm text-sm h-[38px]">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">City</label>
+                                <select id="cs-city-filter" onchange="populateLists()" class="border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 font-medium text-slate-700 bg-white shadow-sm text-sm h-[38px]">
+                                    <option value="All">All Cities</option><option value="Dubai">Dubai</option><option value="Abu-Dhabi">Abu-Dhabi</option><option value="Sharjah">Sharjah</option><option value="Ajman">Ajman</option><option value="Al-Ain">Al-Ain</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Status</label>
+                                <select id="cs-status-filter" onchange="populateLists()" class="border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 font-medium text-slate-700 bg-white shadow-sm text-sm h-[38px]">
+                                    <option value="All">All Statuses</option>
+                                    <option value="available">Available to Book</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="confirmed">Confirmed</option>
+                                    <option value="collected">Collected</option>
+                                    <option value="report_issued">Completed</option>
+                                    <option value="cancelled">Cancelled</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                        <div class="bg-white border rounded-xl p-5 shadow-sm">
-                            <p class="text-slate-400 font-bold text-xs uppercase tracking-wide">System Status</p>
-                            <p class="text-2xl font-black text-emerald-600 mt-1">● Online Active</p>
-                        </div>
-                        <div class="bg-white border rounded-xl p-5 shadow-sm">
-                            <p class="text-slate-400 font-bold text-xs uppercase tracking-wide">Assigned Role</p>
-                            <p class="text-2xl font-black text-slate-700 mt-1 uppercase">${currentUser.role}</p>
-                        </div>
-                        <div class="bg-white border rounded-xl p-5 shadow-sm">
-                            <p class="text-slate-400 font-bold text-xs uppercase tracking-wide">Base Currency</p>
-                            <p class="text-2xl font-black text-blue-600 mt-1">${config.currency || 'USD'}</p>
-                        </div>
+
+                    <div class="mb-8">
+                        <h3 class="text-lg font-black text-blue-700 mb-4 border-b border-blue-200 pb-2">📅 Available Slots</h3>
+                        <div id="cs-available-list" class="grid grid-cols-1 lg:grid-cols-3 gap-4"></div>
                     </div>
-                    <div class="bg-white border border-slate-200 rounded-2xl p-6">
-                        <h3 class="font-bold text-base text-slate-800 mb-2">Available Clinical Service Profiles</h3>
-                        <div class="divide-y font-medium text-xs text-slate-600">
-                            ${(config.services || []).map(s => `
-                                <div class="py-3 flex justify-between">
-                                    <span>🧪 ${s.name}</span>
-                                    <span class="font-black text-slate-800">${s.price} ${config.currency}</span>
-                                </div>
-                            `).join('') || '<p class="text-slate-400 italic py-2">No active tests populated in the master catalog.</p>'}
-                        </div>
+                    <div>
+                        <h3 class="text-lg font-black text-slate-800 mb-4 border-b pb-2">👥 Patient Records</h3>
+                        <div id="cs-records-list" class="grid grid-cols-1 lg:grid-cols-2 gap-4"></div>
                     </div>
                 `;
+        }
+
+        function getNurseDashboardHTML() {
+            return `
+                    <div class="flex justify-between items-end mb-6 border-b pb-4">
+                        <div>
+                            <h2 class="text-3xl font-bold text-emerald-600">Schedule & Workflows</h2>
+                            <p class="text-gray-500">Manage your shifts and process active patient workflows.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white border border-slate-200 rounded-xl p-5 mb-6 shadow-sm">
+                        <h3 class="text-sm font-black uppercase tracking-wider text-slate-800 mb-3 flex items-center gap-2">⚡ Generate Schedule</h3>
+                        <form onsubmit="bulkAddSlots(event)" class="grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
+                            <div>
+                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Date</label>
+                                <input type="date" id="b-date" required class="w-full border border-slate-300 rounded px-3 py-2 text-sm bg-slate-50">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">City</label>
+                                <select id="b-city" class="w-full border border-slate-300 rounded px-3 py-2 text-sm bg-slate-50">
+                                    <option>Dubai</option><option>Abu-Dhabi</option><option>Sharjah</option><option>Ajman</option><option>Al-Ain</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Start</label>
+                                <input type="time" id="b-start" value="08:00" required class="w-full border border-slate-300 rounded px-3 py-2 text-sm bg-slate-50">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">End</label>
+                                <input type="time" id="b-end" value="16:00" required class="w-full border border-slate-300 rounded px-3 py-2 text-sm bg-slate-50">
+                            </div>
+                            <button type="submit" class="w-full py-2 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-colors shadow">Publish</button>
+                        </form>
+                    </div>
+
+                    <div class="mb-8">
+                        <h3 class="text-xs font-black text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">Your Open Slots <span class="bg-blue-100 text-blue-800 text-[9px] px-2 py-0.5 rounded-full">CAN BOOK FROM HERE</span></h3>
+                        <div id="nurse-open-slots" class="flex flex-wrap gap-2"></div>
+                    </div>
+
+                    <div class="mb-10">
+                        <h3 class="text-lg font-black text-orange-600 mb-4 border-b border-orange-200 pb-2 flex items-center gap-2">
+                            🔔 Pending Approvals <span id="pending-count" class="bg-orange-600 text-white text-xs px-2 py-0.5 rounded-full">0</span>
+                        </h3>
+                        <div id="nurse-pending-list" class="space-y-4"></div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-black text-slate-800 mb-4 border-b pb-2">🏃 Active Workflows (Confirmed & Collected)</h3>
+                        <div id="nurse-active-list" class="space-y-4"></div>
+                    </div>
+                `;
+        }
+
+        function getCollectedHTML() {
+            let color = currentUserRole === 'cs' ? 'text-blue-600' : 'text-emerald-600';
+            return `
+                    <div class="mb-6 border-b pb-4">
+                        <h2 class="text-3xl font-bold ${color}">Collected Samples</h2>
+                        <p class="text-gray-500">Patients waiting for lab reports and final invoices.</p>
+                    </div>
+                    <div id="dynamic-list" class="${currentUserRole === 'cs' ? 'grid grid-cols-1 lg:grid-cols-2 gap-4' : 'space-y-4'}"></div>
+                `;
+        }
+
+        function getHistoryHTML() {
+            let color = currentUserRole === 'cs' ? 'text-blue-600' : 'text-emerald-600';
+            return `
+                    <div class="mb-6 border-b pb-4">
+                        <h2 class="text-3xl font-bold ${color}">History & Archive</h2>
+                        <p class="text-gray-500">Completed workflows and cancelled orders.</p>
+                    </div>
+                    <div class="flex gap-2 mb-6 border-b border-slate-200 pb-4">
+                        <button onclick="renderHistoryList('All')" class="px-4 py-1.5 rounded-full text-xs font-bold bg-slate-800 text-white">All Records</button>
+                        <button onclick="renderHistoryList('report_issued')" class="px-4 py-1.5 rounded-full text-xs font-bold bg-green-100 text-green-800 hover:bg-green-200">Completed</button>
+                        <button onclick="renderHistoryList('cancelled')" class="px-4 py-1.5 rounded-full text-xs font-bold bg-red-100 text-red-800 hover:bg-red-200">Cancelled</button>
+                    </div>
+                    <div id="dynamic-list" class="grid grid-cols-1 lg:grid-cols-2 gap-4"></div>
+                `;
+        }
+
+        // --- Populate Logic ---
+        function populateLists() {
+            if (currentNavTab === 'dashboard') {
+                if (currentUserRole === 'cs') renderCSDashboardList();
+                else renderNurseDashboardList();
+            }
+            else if (currentNavTab === 'collected') renderCollectedList();
+            else if (currentNavTab === 'history') renderHistoryList('All');
+        }
+
+        // --- Card Generators ---
+        function generateCard(slot, viewType) {
+            let statusColors = {
+                "pending": "bg-orange-100 text-orange-800 border-orange-200",
+                "confirmed": "bg-blue-100 text-blue-800 border-blue-200",
+                "collected": "bg-indigo-100 text-indigo-800 border-indigo-200",
+                "report_issued": "bg-green-100 text-green-800 border-green-200",
+                "cancelled": "bg-red-100 text-red-800 border-red-200"
+            };
+
+            let statusBadge = slot.status === 'available' ? '' : `<span class="text-[10px] px-2 py-1 rounded font-extrabold uppercase tracking-wider ${statusColors[slot.status]}">${slot.status.replace('_', ' ')}</span>`;
+
+            if (currentUserRole === 'cs' || viewType === 'history') {
+                if (slot.status === 'available') {
+                    return `<div class="p-6 border border-slate-200 rounded-2xl bg-white hover:shadow-md transition-all">
+                                    <div class="flex justify-between items-start mb-5">
+                                        <div><p class="font-extrabold text-xl text-slate-800">${slot.time}</p><p class="text-slate-500 font-medium">${slot.date}</p></div>
+                                        <span class="bg-slate-100 text-slate-600 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wide">${slot.location}</span>
+                                    </div>
+                                    <button onclick="openModal(${slot.id})" class="w-full py-3 bg-blue-50 text-blue-700 font-extrabold rounded-xl hover:bg-blue-600 hover:text-white transition-colors border border-blue-100">Book Patient</button>
+                                </div>`;
+                } else {
+                    return `<div class="p-6 border ${slot.status === 'cancelled' ? 'border-red-200 bg-red-50/30' : 'border-slate-200 bg-white'} rounded-2xl shadow-sm flex flex-col justify-between gap-4">
+                                    <div>
+                                        <div class="flex justify-between items-start mb-3 border-b border-slate-100 pb-3">
+                                            <div><p class="font-extrabold text-slate-800">${slot.time} <span class="text-slate-400 font-medium text-sm ml-2">${slot.date}</span></p></div>
+                                            ${statusBadge}
+                                        </div>
+                                        <div class="space-y-1">
+                                            <p class="text-sm font-bold text-slate-700">👤 ${slot.patientName}</p>
+                                            <p class="text-sm font-medium text-slate-600">📞 ${slot.phone} <span class="mx-1 text-slate-300">|</span> ✉️ ${slot.email}</p>
+                                            <p class="text-sm font-medium text-slate-600">🧪 ${slot.testType} <span class="font-bold text-emerald-600 ml-1">(${slot.finalPrice})</span></p>
+                                        </div>
+                                    </div>
+
+                                    ${slot.status !== 'cancelled' ? `
+                                    <div class="bg-slate-50 rounded-xl p-3 flex flex-wrap gap-2 border border-slate-100 mt-2">
+                                        ${slot.hasReport ? `<a href="${slot.reportUrl}" download="${slot.reportName}" class="px-3 py-1.5 bg-white border border-slate-300 text-blue-700 text-xs font-bold rounded shadow-sm hover:bg-blue-50 inline-block">📊 Download Report</a>` : `<span class="px-3 py-1.5 text-slate-400 text-xs font-medium italic">No report yet</span>`}
+                                        ${slot.hasInvoice ? `<a href="${slot.invoiceUrl}" download="${slot.invoiceName}" class="px-3 py-1.5 bg-white border border-slate-300 text-slate-700 text-xs font-bold rounded shadow-sm hover:bg-slate-100 inline-block">📄 Download Invoice</a>` : `<span class="px-3 py-1.5 text-slate-400 text-xs font-medium italic">No invoice yet</span>`}
+                                    </div>` : ''}
+
+                                    ${!['report_issued', 'cancelled'].includes(slot.status) ? `<button onclick="cancelBooking(${slot.id})" class="text-xs font-bold text-red-500 hover:text-red-700 mt-2 self-start uppercase tracking-wider">Cancel Booking</button>` : ''}
+                                </div>`;
+                }
+            }
+            else {
+                let isComplete = slot.status === 'report_issued';
+                let isPending = slot.status === 'pending';
+                let bgColors = isComplete ? 'bg-green-50/50 border-green-200' : (isPending ? 'bg-orange-50 border-orange-300 border-2 shadow-md' : 'bg-white border-slate-200 shadow-sm');
+
+                return `<div class="p-6 border rounded-2xl ${bgColors} flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative transition-all">
+                                <div class="flex-1">
+                                    <div class="flex flex-wrap items-center gap-3 mb-3">
+                                        <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">${slot.location}</span>
+                                        <p class="text-xl font-black text-slate-800">${slot.time} <span class="text-sm text-slate-500 font-medium ml-1">${slot.date}</span></p>
+                                        ${statusBadge}
+                                    </div>
+                                    <p class="text-blue-700 font-black text-lg mb-3">${slot.testType} <span class="text-slate-500 text-sm font-semibold ml-2 bg-slate-100 px-2 py-1 rounded">Collect: ${slot.finalPrice}</span></p>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-y-1 gap-x-4 text-sm text-slate-700 font-medium mb-4">
+                                        <p>👤 <span class="font-bold text-slate-900">${slot.patientName}</span></p>
+                                        <p>📞 ${slot.phone}</p>
+                                        <p class="md:col-span-2">✉️ ${slot.email}</p>
+                                    </div>
+                                    <div class="p-3 bg-slate-50/80 border border-slate-100 rounded-xl flex justify-between items-center">
+                                        <p class="text-slate-600 text-sm font-medium">📍 ${slot.address}</p>
+                                        <a href="${slot.mapPin}" target="_blank" class="text-blue-600 bg-blue-50 px-3 py-1 rounded text-xs font-bold hover:bg-blue-100 transition-colors whitespace-nowrap ml-2">Open Map</a>
+                                    </div>
+                                </div>
+
+                                <div class="flex flex-col space-y-3 w-full md:w-64 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Actions</p>
+
+                                    ${slot.status === 'pending' ? `<button onclick="updateStatus(${slot.id}, 'confirmed')" class="py-3 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-lg w-full shadow-md transition-all">👍 Confirm Booking</button>` : ''}
+                                    ${slot.status === 'confirmed' ? `<button onclick="updateStatus(${slot.id}, 'collected')" class="py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg w-full shadow-md transition-all">✔ Mark Collected</button>` : ''}
+
+                                    ${['confirmed', 'collected', 'report_issued'].includes(slot.status) ? `
+                                        <div class="grid grid-cols-2 gap-2 mt-2">
+                                            ${['collected', 'report_issued'].includes(slot.status) ? `
+                                            <input type="file" id="upload-report-${slot.id}" class="hidden" onchange="handleFileUpload(event, ${slot.id}, 'Report')">
+                                            <button onclick="document.getElementById('upload-report-${slot.id}').click()" class="py-2 text-[10px] font-bold rounded-lg transition-colors border ${slot.hasReport ? 'bg-green-100 text-green-800 border-green-200' : 'bg-white text-blue-600 border-blue-300 hover:bg-blue-50'}">${slot.hasReport ? '✓ Report Done' : '📊 Add Report'}</button>` : '<div></div>'}
+
+                                            <input type="file" id="upload-invoice-${slot.id}" class="hidden" onchange="handleFileUpload(event, ${slot.id}, 'Invoice')">
+                                            <button onclick="document.getElementById('upload-invoice-${slot.id}').click()" class="py-2 text-[10px] font-bold rounded-lg transition-colors border ${slot.hasInvoice ? 'bg-green-100 text-green-800 border-green-200' : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100'}">${slot.hasInvoice ? '✓ Invoice Done' : '📤 Add Invoice'}</button>
+                                        </div>` : ''}
+
+                                    ${isComplete ? `<div class="py-2 mt-2 bg-green-100 text-green-800 font-extrabold rounded-lg text-center w-full border border-green-300 text-xs">✓ WORKFLOW COMPLETE</div>` : ''}
+
+                                    ${!['report_issued', 'cancelled'].includes(slot.status) ? `<button onclick="cancelBooking(${slot.id})" class="py-2 mt-4 bg-transparent text-red-400 hover:text-red-600 hover:bg-red-50 font-bold rounded-lg w-full transition-colors text-xs tracking-wide">Cancel Order</button>` : ''}
+                                </div>
+                            </div>`;
             }
         }
 
-        loadConfig();
+        // --- Specific List Renderers ---
+        function renderCSDashboardList() {
+            let dateFilter = document.getElementById('cs-date-filter').value;
+            let cityFilter = document.getElementById('cs-city-filter').value;
+            let statusFilter = document.getElementById('cs-status-filter').value;
+
+            let allGlobalRecords = [...slots, ...pastRecords];
+            let filteredSlots = allGlobalRecords.filter(s => {
+                let matchDate = !dateFilter || s.rawDate === dateFilter;
+                let matchCity = cityFilter === "All" || s.location === cityFilter;
+                let matchStatus = statusFilter === "All" || s.status === statusFilter;
+                return matchDate && matchCity && matchStatus;
+            });
+
+            let availableSlots = filteredSlots.filter(s => s.status === 'available');
+            let recordSlots = filteredSlots.filter(s => s.status !== 'available');
+            recordSlots.sort((a, b) => new Date(b.rawDate) - new Date(a.rawDate));
+
+            document.getElementById('cs-available-list').innerHTML = availableSlots.length > 0
+                ? availableSlots.map(s => generateCard(s, 'dashboard')).join('')
+                : `<div class="col-span-full py-8 text-center bg-white rounded-xl border border-slate-200 border-dashed text-slate-400 font-bold text-sm">No available slots match filters.</div>`;
+
+            document.getElementById('cs-records-list').innerHTML = recordSlots.length > 0
+                ? recordSlots.map(s => generateCard(s, 'dashboard')).join('')
+                : `<div class="col-span-full py-8 text-center bg-white rounded-xl border border-slate-200 border-dashed text-slate-400 font-bold text-sm">No active patients match filters.</div>`;
+        }
+
+        function renderNurseDashboardList() {
+            let openSlots = slots.filter(s => s.status === "available");
+            document.getElementById('nurse-open-slots').innerHTML = openSlots.map(slot => `
+                    <div class="bg-white border border-slate-200 pl-3 pr-2 py-1.5 rounded-xl flex items-center justify-between gap-3 shadow-sm hover:border-slate-300">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-xs text-slate-800">${slot.date}</span>
+                            <span class="font-black text-xs text-blue-600">${slot.time}</span>
+                        </div>
+                        <div class="flex items-center gap-1 border-l border-slate-100 pl-2">
+                            <button onclick="openModal(${slot.id})" class="text-[10px] font-bold bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white px-2 py-1 rounded transition-colors uppercase tracking-wider">Book</button>
+                            <button onclick="removeSlot(${slot.id})" class="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded w-6 h-6 flex items-center justify-center font-bold transition-colors">✕</button>
+                        </div>
+                    </div>`).join('') || '<p class="text-xs text-slate-400 italic">No open slots available.</p>';
+
+            let pendingSlots = slots.filter(s => s.status === 'pending');
+            document.getElementById('pending-count').innerText = pendingSlots.length;
+            document.getElementById('nurse-pending-list').innerHTML = pendingSlots.length > 0
+                ? pendingSlots.map(s => generateCard(s, 'dashboard')).join('')
+                : `<div class="text-center p-6 bg-slate-50 rounded-xl border border-slate-200 border-dashed text-slate-400 font-bold text-sm">No pending approvals required.</div>`;
+
+            let activeSlots = slots.filter(s => ['confirmed', 'collected', 'report_issued'].includes(s.status));
+            document.getElementById('nurse-active-list').innerHTML = activeSlots.length > 0
+                ? activeSlots.map(s => generateCard(s, 'dashboard')).join('')
+                : `<div class="text-center p-12 bg-white rounded-2xl border border-slate-200 border-dashed text-slate-400 font-bold text-sm">No active workflows.</div>`;
+        }
+
+        function renderCollectedList() {
+            let collectedSlots = slots.filter(s => s.status === 'collected');
+            document.getElementById('dynamic-list').innerHTML = collectedSlots.length > 0
+                ? collectedSlots.map(s => generateCard(s, 'collected')).join('')
+                : `<div class="col-span-full py-12 text-center bg-white rounded-2xl border border-slate-200 border-dashed"><p class="text-slate-500 font-bold text-lg">No collected samples awaiting reports.</p></div>`;
+        }
+
+        function renderHistoryList(filterStatus) {
+            let activeCompleted = slots.filter(s => s.status === 'report_issued');
+            let allHistory = [...activeCompleted, ...pastRecords];
+
+            if (filterStatus !== 'All') { allHistory = allHistory.filter(h => h.status === filterStatus); }
+            allHistory.sort((a, b) => new Date(b.rawDate) - new Date(a.rawDate));
+
+            document.getElementById('dynamic-list').innerHTML = allHistory.length > 0
+                ? allHistory.map(s => generateCard(s, 'history')).join('')
+                : `<div class="col-span-full text-center p-8 text-slate-400 font-bold italic border border-dashed rounded-xl border-slate-200">No history records match this filter.</div>`;
+        }
+
+        // --- Core Application Logic Actions ---
+        function bulkAddSlots(e) {
+            e.preventDefault();
+            let dateVal = document.getElementById('b-date').value;
+            let city = document.getElementById('b-city').value;
+            let startVal = document.getElementById('b-start').value;
+            let endVal = document.getElementById('b-end').value;
+
+            let startTime = new Date(`${dateVal}T${startVal}`); let endTime = new Date(`${dateVal}T${endVal}`);
+            if (endTime <= startTime) { showToast("End time must be after start time!", "error"); return; }
+
+            let formattedDate = new Date(dateVal).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            let currentTime = new Date(startTime); let count = 0;
+
+            while (currentTime <= endTime) {
+                slots.push({
+                    id: Date.now() + count, date: formattedDate, rawDate: dateVal, time: currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+                    location: city, status: "available", hasInvoice: false, hasReport: false, invoiceUrl: null, invoiceName: null, reportUrl: null, reportName: null
+                });
+                currentTime.setHours(currentTime.getHours() + 1); count++;
+            }
+            showToast(`Published ${count} dynamic operational matrix slots!`, "success");
+            populateLists();
+        }
+
+        function removeSlot(id) { slots = slots.filter(s => s.id !== id); showToast("Slot removed.", "info"); populateLists(); }
+
+        function updateStatus(id, newStatus) {
+            let slot = slots.find(s => s.id === id);
+            slot.status = newStatus;
+            if (newStatus === 'confirmed') showToast("Appointment Confirmed!", "success");
+            if (newStatus === 'collected') showToast("Sample marked as collected.", "success");
+            populateLists();
+        }
+
+        function handleFileUpload(event, id, docType) {
+            let file = event.target.files[0]; if (!file) return;
+            let slot = slots.find(s => s.id === id); let fileUrl = URL.createObjectURL(file);
+            showToast(`Uploading ${docType}...`, "info");
+
+            setTimeout(() => {
+                if (docType === 'Invoice') { slot.hasInvoice = true; slot.invoiceUrl = fileUrl; slot.invoiceName = file.name; showToast("Invoice uploaded!", "success"); }
+                if (docType === 'Report') {
+                    slot.hasReport = true; slot.reportUrl = fileUrl; slot.reportName = file.name; slot.status = 'report_issued';
+                    showToast("Report uploaded! Workflow complete.", "success");
+                }
+                populateLists();
+            }, 800);
+        }
+
+        function cancelBooking(id) {
+            if (confirm("Cancel this booking? It will be moved to History.")) {
+                let slot = slots.find(s => s.id === id);
+                pastRecords.push({ ...slot, historyId: Date.now(), status: 'cancelled', historyTimestamp: new Date().toLocaleString() });
+                slot.status = "available"; slot.patientName = undefined; slot.phone = undefined; slot.email = undefined; slot.testType = undefined; slot.address = undefined; slot.mapPin = undefined; slot.discountApplied = undefined; slot.finalPrice = undefined; slot.hasInvoice = false; slot.hasReport = false; slot.invoiceUrl = null; slot.reportUrl = null;
+                showToast("Booking Cancelled & Archived.", "error");
+                populateLists();
+            }
+        }
+
+        function calculatePrice() {
+            let testType = document.getElementById('p-test').value;
+            let finalPrice = document.getElementById('p-discount').checked ? prices[testType] * 0.90 : prices[testType];
+            document.getElementById('display-price').innerText = finalPrice.toFixed(2) + " AED";
+        }
+
+        function openModal(id) {
+            let slot = slots.find(s => s.id === id);
+            document.getElementById('modal-title').innerText = `Book Slot: ${slot.location} (${slot.date} at ${slot.time})`;
+            document.getElementById('slot-id').value = id;
+            document.getElementById('booking-form').reset();
+            calculatePrice();
+            document.getElementById('booking-modal').classList.remove('hidden');
+        }
+
+        function closeModal() { document.getElementById('booking-modal').classList.add('hidden'); }
+
+        function submitBooking(e) {
+            e.preventDefault();
+            let phoneInfo = document.getElementById('p-phone').value.trim(); let emailInfo = document.getElementById('p-email').value.trim(); let addressInfo = document.getElementById('p-address').value.trim();
+            if (!phoneInfo || !emailInfo || !addressInfo || addressInfo.length < 5) { showToast("Booking Failed: Fill required fields!", "error"); return; }
+
+            let slot = slots.find(s => s.id === parseInt(document.getElementById('slot-id').value));
+            slot.patientName = document.getElementById('p-name').value; slot.phone = phoneInfo; slot.email = emailInfo; slot.testType = document.getElementById('p-test').value; slot.address = addressInfo; slot.mapPin = document.getElementById('p-pin').value; slot.discountApplied = document.getElementById('p-discount').checked; slot.finalPrice = document.getElementById('display-price').innerText;
+
+            if (currentUserRole === 'nurse') { slot.status = "confirmed"; showToast("Patient Booked & Auto-Confirmed!", "success"); }
+            else { slot.status = "pending"; showToast("Patient Booked! Waiting for Nurse confirmation.", "success"); }
+
+            closeModal(); populateLists();
+        }
     </script>
 </body>
 </html>
